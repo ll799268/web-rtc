@@ -1,8 +1,4 @@
-
-
-module.exports = {
-  devServer: {
-    host: '0.0.0.0',
-    disableHostCheck: true,   // That solved it
-  }
-}
+const { defineConfig } = require('@vue/cli-service')
+module.exports = defineConfig({
+  transpileDependencies: true
+})
