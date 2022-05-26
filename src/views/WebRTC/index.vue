@@ -42,7 +42,7 @@ export default {
   .web-rtc {
     display: flex;
     flex-direction: column;
-    height: 80vh;
+    height: 100vh;
     overflow: hidden;
     .warpper {
       display: flex;
