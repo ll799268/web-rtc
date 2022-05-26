@@ -8,7 +8,7 @@
         <Recorder :startRecording="startRecording" />
       </div>
     </div>
-    <button @click="handleStartRecording">开始通话</button>
+    <button @click="handleStartRecording">开始录制</button>
   </div>
 </template>
 
