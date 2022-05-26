@@ -2,9 +2,11 @@
   <div class="web-rtc">
     <div class="warpper">
       <div class="main-warpper">
+        <h3>远程画面</h3>
         <Player :videoOption="entryVideoOption" />
       </div>
       <div class="connect-warpper">
+        <h3>本机画面</h3>
         <Recorder :startRecording="startRecording" />
       </div>
     </div>
