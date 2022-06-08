@@ -1,8 +1,15 @@
 import request from './index'
 
-// export const getVideoFlv = () => {
-//   return request({
-//     url: `/live/livestream`,
-//     method: 'post'
-//   })
-// }
+export const recordStart = data => {
+  return request({
+    url: `/video/recordStart`,
+    method: 'post',
+    data
+  })
+}
+
+export const recordStop = threadId => {
+  return request({
+    url: `/video/recordStop?threadId=${ threadId }`,
+  })
+}

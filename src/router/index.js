@@ -3,12 +3,12 @@ import VueRouter from 'vue-router'
 
 Vue.use(VueRouter)
 
-const WebRTC = () => import('@/views/WebRTC')
+const MettingRTC = () => import('@/views/MettingRTC')
 
 const routes = [
   {
     path: '/',
-    component: WebRTC,
+    component: MettingRTC,
   }
 ]
 

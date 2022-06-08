@@ -1,22 +1,2 @@
-# vue-demo
-
-## Project setup
-```
-yarn install
-```
-
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
-
-#### 示意流
+### 示意流
 webrtc://r.ossrs.net/live/livestream
