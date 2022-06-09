@@ -7,6 +7,9 @@
       <video ref="selfPlayer" 
         autoplay muted controls></video>
       <b ref="selfUrl"></b>
+      <button @click="handleStartRecord">开始录制</button>
+      <button @click="handleStopRecord">停止录制</button>
+      <button @click="handleRecordList">录制列表</button>
     </div>
     <div class="others" ref="others">
       <!-- <div class="player" v-for="player in playersAttr"
@@ -24,14 +27,47 @@
 <script>
 // import NativePlayer from './NativePlayer'
 // import OriginPlayer from './OriginPlayer'
-import faceTime from '@/modules/srs/face-time'
+import FaceTime from '@/modules/srs/face-time'
+import { recordStart, recordStop, getVideoList } from '@/api/web-rtc'
 export default {
+  data () {
+    this.faceTime = null
+    return {
+      threadId: ''
+    }
+  },
   // components: {
   //   NativePlayer,
   //   OriginPlayer
   // },
   mounted () {
-    this.$nextTick(faceTime(this.$refs.selfPlayer, this.$refs.selfUrl, this.$refs.others))
+    this.initFaceTime()
+  },
+  methods: {
+    initFaceTime () {
+      const faceTime = new FaceTime(this.$refs.selfPlayer, this.$refs.selfUrl, this.$refs.others)
+      faceTime.startDemo()
+      this.faceTime = faceTime
+    },
+    async handleStartRecord () {
+      const { host, room, display } = this.faceTime.config
+      const videoPath = `rtmp://${host}:1443/${room}/${display}`
+      if (!videoPath) return
+      const result = await recordStart({ videoPath })
+      this.threadId = result.data.data
+      console.log(result);
+    },
+    async handleStopRecord () {
+      if (!this.threadId) {
+        alert('请先开始录制!')
+      }
+      const result = await recordStop(this.threadId)
+      console.log(result);
+    },
+    async handleRecordList () {
+      const result = await getVideoList()
+      console.log(result)
+    }
   }
 }
 </script>

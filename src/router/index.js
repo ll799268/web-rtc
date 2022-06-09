@@ -4,11 +4,16 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
 const MettingRTC = () => import('@/views/MettingRTC')
+const FlashVideo = () => import('@/views/FlashVideo')
 
 const routes = [
   {
     path: '/',
     component: MettingRTC,
+  },
+  {
+    path: '/flash-video',
+    component: FlashVideo,
   }
 ]
 
