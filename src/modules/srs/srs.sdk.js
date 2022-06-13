@@ -4,9 +4,7 @@ export function SrsRtcPublisherAsync() {
   const self = {}
   self.constraints = {
     audio: true,
-    video: {
-      width: { ideal: 320, max: 576 }
-    }
+    video: true
   }
   self.publish = async url => {
     let conf = self.__internal.prepareUrl(url)

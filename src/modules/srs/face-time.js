@@ -31,7 +31,7 @@ class FaceTime {
     
   }
   
-  startDemo = async () => {
+  async startDemo () {
 
     const { host, room, display } = this.config
 
@@ -79,7 +79,7 @@ class FaceTime {
 
   }
 
-  startPublish = (host, room, display) => {
+  startPublish (host, room, display) {
     const url = 'webrtc://' + host + '/' + room + '/' + display + this.locationConfig.query
 
     if (this.publisher) {
@@ -102,7 +102,7 @@ class FaceTime {
   }
 
 
-  startPlay = (host, room, display) => {
+  startPlay (host, room, display) {
     if (this.players[display]) {
       this.players[display].ui.remove()
       this.players[display].player.close()
