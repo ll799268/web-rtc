@@ -118,6 +118,7 @@ class FaceTime {
     videoDom.autoplay = true
     videoDom.controls = true
     videoDom.srcObject = player.stream
+    videoDom.style.width = '100%'
 
     const bDom = document.createElement('b')
 

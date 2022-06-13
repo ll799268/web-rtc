@@ -7,15 +7,17 @@
       <video ref="selfPlayer"
         autoplay muted controls></video>
       <b ref="selfUrl"></b>
-      <button @click="handleStartRecord">开始录制</button>
-      <button @click="handleStopRecord">停止录制</button>
-      <button @click="handleRecordList">录制列表</button>
+     <div class="button-groups">
+        <button @click="handleStartRecord">开始录制</button>
+        <button @click="handleStopRecord">停止录制</button>
+        <button @click="handleRecordList">录制列表</button>
+     </div>
     </div>
     <div class="others" ref="others">
       <!-- <div class="player">
         <video class="others-player"
           autoplay muted controls></video>
-        <b class="other"></b>
+        <b class="other">other</b>
       </div> -->
     </div>
   </div>
@@ -80,25 +82,26 @@ export default {
       width: 69%;
       height: 100%;
       margin-right: 1%;
-       video {
+      b {
+        display: inline-block;
+        margin: 6px 0;
+      }
+      video {
         width: 100%;
         height: 90%;
       }
     }
     .others {
       width: 30%;
-      height: 100%;
       overflow-y: auto;
+      overflow-x: hidden;
       .player {
-        height: 40%;
+        height: 30%;
         margin-top: 20px;
         display: flex;
         flex-direction: column;
         &:first-of-type {
           margin-top: 0;
-        }
-        video {
-          width: 100%;
         }
       }
     }
