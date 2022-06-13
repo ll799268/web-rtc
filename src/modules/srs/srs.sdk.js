@@ -7,7 +7,7 @@ export function SrsRtcPublisherAsync() {
     video: true
   }
   self.publish = async url => {
-    let conf = self.__internal.prepareUrl(url)
+    let conf = self.internal.prepareUrl(url)
     self.pc.addTransceiver('audio', { direction: 'sendonly' })
     self.pc.addTransceiver('video', { direction: 'sendonly' })
 
@@ -61,12 +61,12 @@ export function SrsRtcPublisherAsync() {
 
   self.ontrack = event => self.stream.addTrack(event.track)
   
-  self.__internal = {
+  self.internal = {
     defaultPath: '/rtc/v1/publish/',
     prepareUrl: webrtcUrl => {
-      const urlObject = self.__internal.parse(webrtcUrl)
+      const urlObject = self.internal.parse(webrtcUrl)
 
-      let schema = urlObject.user_query.schema
+      let schema = urlObject.userQuery.schema
       schema = schema ? schema + ':' : window.location.protocol
 
       let port = urlObject.port || 1985
@@ -74,15 +74,15 @@ export function SrsRtcPublisherAsync() {
         port = urlObject.port || 443
       }
 
-      let api = urlObject.user_query.play || self.__internal.defaultPath
+      let api = urlObject.userQuery.play || self.internal.defaultPath
       if (api.lastIndexOf('/') !== api.length - 1) {
         api += '/'
       }
 
       let apiUrl = schema + '//' + urlObject.server + ':' + port + api
-      for (const key in urlObject.user_query) {
+      for (const key in urlObject.userQuery) {
         if (key !== 'api' && key !== 'play') {
-          apiUrl += '&' + key + '=' + urlObject.user_query[key]
+          apiUrl += '&' + key + '=' + urlObject.userQuery[key]
         }
       }
 
@@ -152,11 +152,11 @@ export function SrsRtcPublisherAsync() {
         app, 
         stream
       }
-      self.__internal.fill_query(a.search, ret)
+      self.internal.fillQuery(a.search, ret)
 
       if (!ret.port) {
         if (schema === 'webrtc' || schema === 'rtc') {
-          if (ret.user_query.schema === 'https' ||
+          if (ret.userQuery.schema === 'https' ||
             window.location.href.indexOf('https://') === 0) {
             ret.port = 443
           } else {
@@ -166,23 +166,23 @@ export function SrsRtcPublisherAsync() {
       }
       return ret
     },
-    fill_query: (query_string, obj) => {
-      obj.user_query = {}
+    fillQuery: (queryString, obj) => {
+      obj.userQuery = {}
 
-      if (query_string.length === 0) return
+      if (queryString.length === 0) return
 
-      if (query_string.indexOf('?') >= 0) {
-        query_string = query_string.split('?')[1]
+      if (queryString.indexOf('?') >= 0) {
+        queryString = queryString.split('?')[1]
       }
 
-      const queries = query_string.split('&')
+      const queries = queryString.split('&')
 
       for (const i = 0; i < queries.length; i++) {
         const elem = queries[i]
         const query = elem.split('=')
 
         obj[query[0]] = query[1]
-        obj.user_query[query[0]] = query[1]
+        obj.userQuery[query[0]] = query[1]
       }
       if (obj.domain) {
         obj.vhost = obj.domain
@@ -194,16 +194,21 @@ export function SrsRtcPublisherAsync() {
   self.stream = new MediaStream()
   return self
 }
+export class SrsRtcPlayerAsync {
+  constructor () {
+    this.pc = new RTCPeerConnection(null)
+    this.pc.ontrack = event => this.ontrack && this.ontrack(event)
+    
+    this.stream = new MediaStream()
+  }
 
-export function SrsRtcPlayerAsync() {
-  const self = {}
-  self.play = async url => {
-    const conf = self.__internal.prepareUrl(url)
-    self.pc.addTransceiver('audio', { direction: 'recvonly' })
-    self.pc.addTransceiver('video', { direction: 'recvonly' })
+  async play (url) {
+    const conf = this.prepareUrl(url)
+    this.pc.addTransceiver('audio', { direction: 'recvonly' })
+    this.pc.addTransceiver('video', { direction: 'recvonly' })
 
-    const offer = await self.pc.createOffer()
-    await self.pc.setLocalDescription(offer)
+    const offer = await this.pc.createOffer()
+    await this.pc.setLocalDescription(offer)
 
     const session = await new Promise((resolve, reject) => {
       const data = {
@@ -213,7 +218,6 @@ export function SrsRtcPlayerAsync() {
         clientip: null, 
         sdp: offer.sdp
       }
-
       // console.log('Generated offer: ', data);
       axios({
         method: 'post',
@@ -232,153 +236,148 @@ export function SrsRtcPlayerAsync() {
       })
 
     })
-    await self.pc.setRemoteDescription(
+    await this.pc.setRemoteDescription(
       new RTCSessionDescription({ type: 'answer', sdp: session.sdp })
     )
     session.simulator = conf.schema + '//' + conf.urlObject.server + ':' + conf.port + '/rtc/v1/nack/'
     return session
   }
 
-  self.close = () => {
-    self.pc && self.pc.close()
-    self.pc = null
+  close () {
+    this.pc && this.pc.close()
+    this.pc = null
   }
 
-  self.ontrack = event => self.stream.addTrack(event.track)
+  ontrack = event => this.stream.addTrack(event.track)
 
-  self.__internal = {
-    defaultPath: '/rtc/v1/play/',
-    prepareUrl: webrtcUrl => {
-      const urlObject = self.__internal.parse(webrtcUrl)
+  prepareUrl (webrtcUrl) {
+    const urlObject = this.parse(webrtcUrl)
 
-      let schema = urlObject.user_query.schema
-      schema = schema ? schema + ':' : window.location.protocol
+    let schema = urlObject.userQuery.schema
+    schema = schema ? schema + ':' : window.location.protocol
 
-      let port = urlObject.port || 1985
-      if (schema === 'https:') {
-        port = urlObject.port || 443
+    let port = urlObject.port || 1985
+    if (schema === 'https:') {
+      port = urlObject.port || 443
+    }
+
+    let api = urlObject.userQuery.play || '/rtc/v1/play/'
+    if (api.lastIndexOf('/') !== api.length - 1) {
+      api += '/'
+    }
+
+    let apiUrl = schema + '//' + urlObject.server + ':' + port + api
+    for (const key in urlObject.userQuery) {
+      if (key !== 'api' && key !== 'play') {
+        apiUrl += '&' + key + '=' + urlObject.userQuery[key]
       }
+    }
 
-      let api = urlObject.user_query.play || self.__internal.defaultPath
-      if (api.lastIndexOf('/') !== api.length - 1) {
-        api += '/'
-      }
+    apiUrl = apiUrl.replace(api + '&', api + '?')
+    const streamUrl = urlObject.url
 
-      let apiUrl = schema + '//' + urlObject.server + ':' + port + api
-      for (const key in urlObject.user_query) {
-        if (key !== 'api' && key !== 'play') {
-          apiUrl += '&' + key + '=' + urlObject.user_query[key]
-        }
-      }
-
-      apiUrl = apiUrl.replace(api + '&', api + '?')
-      const streamUrl = urlObject.url
-
-      return {
-        apiUrl, 
-        streamUrl, 
-        schema, 
-        urlObject, 
-        port,
-        tid: Number(parseInt(new Date().getTime() * Math.random() * 100)).toString(16).substr(0, 7)
-      }
-    },
-    parse: url => {
-      const a = document.createElement('a')
-      a.href = url.replace('rtmp://', 'http://')
-        .replace('webrtc://', 'http://')
-        .replace('rtc://', 'http://')
-
-      let vhost = a.hostname
-      let app = a.pathname.substr(1, a.pathname.lastIndexOf('/') - 1)
-      let stream = a.pathname.substr(a.pathname.lastIndexOf('/') + 1)
-
-      app = app.replace('...vhost...', '?vhost=')
-      if (app.indexOf('?') >= 0) {
-        let params = app.substr(app.indexOf('?'))
-        app = app.substr(0, app.indexOf('?'))
-
-        if (params.indexOf('vhost=') > 0) {
-          vhost = params.substr(params.indexOf('vhost=') + 'vhost='.length)
-          if (vhost.indexOf('&') > 0) {
-            vhost = vhost.substr(0, vhost.indexOf('&'))
-          }
-        }
-      }
-
-      if (a.hostname === vhost) {
-        const re = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
-        if (re.test(a.hostname)) {
-          vhost = '__defaultVhost__'
-        }
-      }
-
-      let schema = 'rtmp'
-      if (url.indexOf('://') > 0) {
-        schema = url.substr(0, url.indexOf('://'))
-      }
-
-      let port = a.port
-      if (!port) {
-        if (schema === 'http') {
-          port = 80
-        } else if (schema === 'https') {
-          port = 443
-        } else if (schema === 'rtmp') {
-          port = 1935
-        }
-      }
-
-      const ret = {
-        url,
-        schema,
-        server: a.hostname, 
-        port,
-        vhost, 
-        app, 
-        stream
-      }
-      self.__internal.fill_query(a.search, ret)
-
-      if (!ret.port) {
-        if (schema === 'webrtc' || schema === 'rtc') {
-          if (ret.user_query.schema === 'https' ||
-            window.location.href.indexOf('https://') === 0) {
-            ret.port = 443
-          } else {
-            ret.port = 1985
-          }
-        }
-      }
-      return ret
-    },
-    fill_query: (query_string, obj) => {
-      obj.user_query = {}
-
-      if (query_string.length === 0) return
-
-      if (query_string.indexOf('?') >= 0) {
-        query_string = query_string.split('?')[1]
-      }
-
-      const queries = query_string.split('&')
-
-      for (const i = 0; i < queries.length; i++) {
-        const elem = queries[i]
-        const query = elem.split('=')
-
-        obj[query[0]] = query[1]
-        obj.user_query[query[0]] = query[1]
-      }
-      if (obj.domain) {
-        obj.vhost = obj.domain
-      }
+    return {
+      apiUrl, 
+      streamUrl, 
+      schema, 
+      urlObject, 
+      port,
+      tid: Number(parseInt(new Date().getTime() * Math.random() * 100)).toString(16).substr(0, 7)
     }
   }
 
-  self.pc = new RTCPeerConnection(null)
-  self.stream = new MediaStream()
-  self.pc.ontrack = event => self.ontrack && self.ontrack(event)
+  parse (url) {
+    const a = document.createElement('a')
+    a.href = url.replace('rtmp://', 'http://')
+      .replace('webrtc://', 'http://')
+      .replace('rtc://', 'http://')
 
-  return self
+    let vhost = a.hostname
+    let app = a.pathname.substr(1, a.pathname.lastIndexOf('/') - 1)
+    let stream = a.pathname.substr(a.pathname.lastIndexOf('/') + 1)
+
+    app = app.replace('...vhost...', '?vhost=')
+    if (app.indexOf('?') >= 0) {
+      let params = app.substr(app.indexOf('?'))
+      app = app.substr(0, app.indexOf('?'))
+
+      if (params.indexOf('vhost=') > 0) {
+        vhost = params.substr(params.indexOf('vhost=') + 'vhost='.length)
+        if (vhost.indexOf('&') > 0) {
+          vhost = vhost.substr(0, vhost.indexOf('&'))
+        }
+      }
+    }
+
+    if (a.hostname === vhost) {
+      const re = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
+      if (re.test(a.hostname)) {
+        vhost = '__defaultVhost__'
+      }
+    }
+
+    let schema = 'rtmp'
+    if (url.indexOf('://') > 0) {
+      schema = url.substr(0, url.indexOf('://'))
+    }
+
+    let port = a.port
+    if (!port) {
+      if (schema === 'http') {
+        port = 80
+      } else if (schema === 'https') {
+        port = 443
+      } else if (schema === 'rtmp') {
+        port = 1935
+      }
+    }
+
+    const ret = {
+      url,
+      schema,
+      server: a.hostname, 
+      port,
+      vhost, 
+      app, 
+      stream
+    }
+
+    this.fillQuery(a.search, ret)
+
+    if (!ret.port) {
+      if (schema === 'webrtc' || schema === 'rtc') {
+        if (ret.userQuery.schema === 'https' ||
+          window.location.href.indexOf('https://') === 0) {
+          ret.port = 443
+        } else {
+          ret.port = 1985
+        }
+      }
+    }
+    return ret
+  }
+
+  fillQuery (queryString, obj) {
+    obj.userQuery = {}
+
+    if (!queryString.length) return
+
+    if (queryString.indexOf('?') >= 0) {
+      queryString = queryString.split('?')[1]
+    }
+
+    const queries = queryString.split('&')
+
+    for (const i = 0; i < queries.length; i++) {
+      const elem = queries[i]
+      const query = elem.split('=')
+
+      obj[query[0]] = query[1]
+      obj.userQuery[query[0]] = query[1]
+    }
+    if (obj.domain) {
+      obj.vhost = obj.domain
+    }
+  }
+
 }
