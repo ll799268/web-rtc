@@ -384,31 +384,3 @@ export function SrsRtcPlayerAsync() {
 
   return self
 }
-
-export function SrsRtcFormatSenders(senders, kind) {
-  const codecs = []
-  senders.forEach(sender => {
-    const params = sender.getParameters()
-    params && params.codecs && params.codecs.forEach(function (c) {
-      if (kind && sender.track.kind !== kind) {
-        return
-      }
-
-      if (c.mimeType.indexOf('/red') > 0 || 
-        c.mimeType.indexOf('/rtx') > 0 || 
-        c.mimeType.indexOf('/fec') > 0) {
-        return
-      }
-
-      let s = ''
-      s += c.mimeType.replace('audio/', '').replace('video/', '')
-      s += ', ' + c.clockRate + 'HZ'
-      if (sender.track.kind === 'audio') {
-        s += ', channels: ' + c.channels
-      }
-      s += ', pt: ' + c.payloadType
-      codecs.push(s)
-    })
-  })
-  return codecs.join(', ')
-}

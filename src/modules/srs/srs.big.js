@@ -1,50 +1,54 @@
-export function SrsRtcSignalingAsync() {
-  const self = {}
-  self.connect = async (schema, host, room, display) => {
+export class SrsRtcSignalingAsync {
+  constructor() {
+    this.ws = null
+    this.internals = {
+      // Key is tid, value is object { resolve, reject, response }
+      msgs: {}
+    }
+  }
+
+  connect (schema, host, room, display) {
     const url = schema + '://' + host + '/sig/v1/rtc'
-    self.ws = new WebSocket(url + '?room=' + room + '&display=' + display)
-    self.ws.onmessage = event => {
+    this.ws = new WebSocket(url + '?room=' + room + '&display=' + display)
+    this.ws.onmessage = event => {
       const r = JSON.parse(event.data)
-      const promise = self._internals.msgs[r.tid]
+      const promise = this.internals.msgs[r.tid]
       if (promise) {
         promise.resolve(r.msg)
-        delete self._internals.msgs[r.tid]
+        delete this.internals.msgs[r.tid]
       } else {
-        self.onmessage(r.msg)
+        this.onmessage(r.msg)
       }
     }
     return new Promise((resolve, reject) => {
-      self.ws.onopen = event => resolve(event)
-      self.ws.onerror = event => reject(event)
+      this.ws.onopen = event => resolve(event)
+      this.ws.onerror = event => reject(event)
     })
   }
 
   // The message is a json object.
-  self.send = async msg => {
+  send (msg) {
     return new Promise((resolve, reject) => {
-      const r = { tid: Number(parseInt(new Date().getTime() * Math.random() * 100)).toString(16).substr(0, 7), msg }
-      self._internals.msgs[r.tid] = { resolve, reject }
-      self.ws.send(JSON.stringify(r))
+      const r = { 
+        tid: Number(parseInt(new Date().getTime() * Math.random() * 100)).toString(16).substr(0, 7), 
+        msg
+      }
+      this.internals.msgs[r.tid] = { resolve, reject }
+      this.ws.send(JSON.stringify(r))
     })
   }
 
-  self.close = () => {
-    self.ws && self.ws.close()
-    self.ws = null
-    for (const tid in self._internals.msgs) {
-      var promise = self._internals.msgs[tid]
+  close () {
+    this.ws && this.ws.close()
+    this.ws = null
+    for (const tid in this.internals.msgs) {
+      const promise = this.internals.msgs[tid]
       promise.reject('close')
     }
   }
-
-  self._internals = {
-    // Key is tid, value is object {resolve, reject, response}.
-    msgs: {}
-  }
-  return self
 }
 
-export function SrsRtcSignalingParse(location) {
+export const SrsRtcSignalingParse = location => {
   let query = location.href.split('?')[1]
   query = query ? '?' + query : ''
 
@@ -61,7 +65,7 @@ export function SrsRtcSignalingParse(location) {
   host = host ? host.split('&')[0] : location.hostname
 
   let room = location.href.split('room=')[1]
-  room = room ? room.split('&')[0] : null
+  room = room ? room.split('&')[0] : ''
 
   let display = location.href.split('display=')[1]
   display = display ? display.split('&')[0] : Number(parseInt(new Date().getTime() * Math.random() * 100)).toString(16).toString(16).substr(0, 7)

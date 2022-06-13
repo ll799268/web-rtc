@@ -43,10 +43,7 @@ class FaceTime {
         if (msg.peer &&
           msg.peer.publishing &&
           msg.peer.display !== display) {
-          this.startPlay(
-            host,
-            room,
-            msg.peer.display)
+          this.startPlay(host, room, msg.peer.display)
         }
       }
 
