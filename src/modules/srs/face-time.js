@@ -60,7 +60,9 @@ class FaceTime {
 
           if (!stillAlive) {
             this.players[k].player.close()
-            this.others.removeChild(this.players[k].playDom)
+            try {
+              this.others.removeChild(this.players[k].playDom)
+            } catch {  }
           }
         }
       }
@@ -133,7 +135,7 @@ class FaceTime {
       player
     }
 
-    const url = 'webrtc://' + host + '/' + room + '/' + display + locationConfig.query
+    const url = 'webrtc://' + host + '/' + room + '/' + display + this.locationConfig.query
 
     player.play(url)
       .then(session => {

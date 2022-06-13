@@ -1,0 +1,19 @@
+1、录制
+http://36.154.12.195:8081/video/recordStart post
+{
+ videoPath，
+ videoWidth,
+ videoHeight
+}
+
+2、停止录制
+/video/recordStop?threadId=threadId get
+
+3、合并视频
+/video/merge post
+[{
+ videoPath，
+ videoWidth,
+ videoHeight
+}]
+

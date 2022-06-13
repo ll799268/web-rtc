@@ -4,7 +4,7 @@
     <OriginPlayer /> -->
 
     <div class="self">
-      <video ref="selfPlayer" 
+      <video ref="selfPlayer"
         autoplay muted controls></video>
       <b ref="selfUrl"></b>
       <button @click="handleStartRecord">开始录制</button>
@@ -12,13 +12,10 @@
       <button @click="handleRecordList">录制列表</button>
     </div>
     <div class="others" ref="others">
-      <!-- <div class="player" v-for="player in playersAttr"
-        :key="player.id"
-        :ref="player.id">
-        <video :src="player.stream"
-          class="others-player"
+      <!-- <div class="player">
+        <video class="others-player"
           autoplay muted controls></video>
-        <b class="other">{{ player.url }}</b>
+        <b class="other"></b>
       </div> -->
     </div>
   </div>
@@ -101,6 +98,7 @@ export default {
           margin-top: 0;
         }
         video {
+          width: 100%;
           height: 100%;
         }
       }
