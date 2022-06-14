@@ -79,7 +79,7 @@ class FaceTime {
 
   }
 
-  startPublish (host, room, display) {
+  async startPublish (host, room, display) {
     const url = 'webrtc://' + host + '/' + room + '/' + display + this.locationConfig.query
 
     if (this.publisher) {
@@ -90,15 +90,14 @@ class FaceTime {
 
     this.selfPlayer.srcObject = this.publisher.stream
 
-    return this.publisher.publish(url)
-      .then(session => {
-        this.selfUrl.innerHTML = `self: ${url}`
-      })
-      .catch(reason => {
-        // 推流失败
-        this.publisher.close()
-        console.error(reason)
-      })
+    try {
+      const session = await this.publisher.publish(url)
+      this.selfUrl.innerHTML = `self: ${url}`
+    } catch (reason) {
+      // 推流失败
+      this.publisher.close()
+      console.error(reason)
+    }
   }
 
 
