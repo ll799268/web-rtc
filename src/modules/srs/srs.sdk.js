@@ -1,13 +1,27 @@
 import axios from 'axios'
 import { prepareUrl } from '@/libs/src-utils'
-export class SrsRtcPublisherAsync {
+
+class SrsRtcAsync {
   constructor () {
-    this.pc = new RTCPeerConnection(null)
+    this.pc = new RTCPeerConnection()
     this.stream = new MediaStream()
   }
 
+  close () {
+    this.pc && this.pc.close()
+    this.pc = null
+  }
+
+  ontrack = event => this.stream.addTrack(event.track)
+}
+
+export class SrsRtcPublisherAsync extends SrsRtcAsync {
+  constructor () {
+    super()
+  }
+
   async publish (url) {
-    let conf = prepareUrl(url, '/rtc/v1/publish/')
+    const conf = prepareUrl(url, '/rtc/v1/publish/')
     this.pc.addTransceiver('audio', { direction: 'sendonly' })
     this.pc.addTransceiver('video', { direction: 'sendonly' })
 
@@ -46,7 +60,6 @@ export class SrsRtcPublisherAsync {
         reject(err)
       })
     })
-
     await this.pc.setRemoteDescription(
       new RTCSessionDescription({ type: 'answer', sdp: session.sdp })
     )
@@ -54,21 +67,12 @@ export class SrsRtcPublisherAsync {
     return session
   }
 
-  close () {
-    this.pc && this.pc.close()
-    this.pc = null
-  }
-
-  ontrack = event => this.stream.addTrack(event.track)
-
 }
 
-export class SrsRtcPlayerAsync {
+export class SrsRtcPlayerAsync extends SrsRtcAsync {
   constructor () {
-    this.pc = new RTCPeerConnection(null)
+    super()
     this.pc.ontrack = event => this.ontrack && this.ontrack(event)
-    
-    this.stream = new MediaStream()
   }
 
   async play (url) {
@@ -109,12 +113,5 @@ export class SrsRtcPlayerAsync {
     session.simulator = conf.schema + '//' + conf.urlObject.server + ':' + conf.port + '/rtc/v1/nack/'
     return session
   }
-
-  close () {
-    this.pc && this.pc.close()
-    this.pc = null
-  }
-
-  ontrack = event => this.stream.addTrack(event.track)
 
 }
