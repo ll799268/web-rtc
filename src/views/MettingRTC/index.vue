@@ -4,11 +4,11 @@
       <video ref="selfPlayer"
         autoplay muted controls></video>
       <b ref="selfUrl"></b>
-     <div class="button-groups">
-        <button @click="handleStartRecord">开始录制</button>
-        <button @click="handleStopRecord">停止录制</button>
-        <button @click="handleRecordList">录制列表</button>
-     </div>
+    <div class="button-groups">
+      <button @click="handleStartRecord">开始录制</button>
+      <button @click="handleStopRecord">停止录制</button>
+      <button @click="handleRecordList">录制列表</button>
+    </div>
     </div>
     <div class="others" ref="others">
       <!-- <div class="player">
