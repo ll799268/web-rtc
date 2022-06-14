@@ -100,7 +100,6 @@ class FaceTime {
     }
   }
 
-
   startPlay (host, room, display) {
     if (this.players[display]) {
       this.players[display].ui.remove()
@@ -142,6 +141,7 @@ class FaceTime {
         player.close()
       })
   }
+
 }
 
 export default FaceTime

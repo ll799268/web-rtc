@@ -1,8 +1,5 @@
 <template>
   <div class="meeting-rtc">
-    <!-- <NativePlayer />
-    <OriginPlayer /> -->
-
     <div class="self">
       <video ref="selfPlayer"
         autoplay muted controls></video>
@@ -24,8 +21,6 @@
 </template>
 
 <script>
-// import NativePlayer from './NativePlayer'
-// import OriginPlayer from './OriginPlayer'
 import FaceTime from '@/modules/srs/face-time'
 import { recordStart, recordStop, getVideoList } from '@/api/web-rtc'
 export default {
@@ -35,10 +30,6 @@ export default {
       threadId: ''
     }
   },
-  // components: {
-  //   NativePlayer,
-  //   OriginPlayer
-  // },
   mounted () {
     this.initFaceTime()
   },
